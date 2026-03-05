@@ -33,8 +33,10 @@ namespace CORE_BE.Models
 
         [JsonIgnore]
         public virtual ICollection<PhanQuyen_DonVi>? PhanQuyen_DonVis { get; set; }
+        [JsonIgnore]
+        public List<Server> Servers { get; set; }
 
-        [NotMapped]
-        public List<DonVi>? children { set; get; }
+        // [NotMapped]
+        // public List<DonVi>? children { get; set; }
     }
 }

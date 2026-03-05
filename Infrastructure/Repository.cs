@@ -113,13 +113,18 @@ namespace CORE_BE.Infrastructure
             if (whereCondition != null)
                 query = query.Where(whereCondition);
 
-            totalRow = query.Count();
-            totalPage = (int)Math.Ceiling((double)totalRow / pageSize);
 
             if (orderBy != null)
                 query = orderBy(query);
-
-            return query.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            totalRow = query.Count();
+            totalPage = (int)Math.Ceiling((double)totalRow / pageSize);
+            
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
+            if(includes != null && includes.Length > 0)
+            {
+                query = includes.Aggregate(query, (current, include) => current.Include(include));
+            }
+            return query.AsNoTracking().ToList();
         }
 
         public int Count(Expression<Func<T, bool>> whereCondition = null)

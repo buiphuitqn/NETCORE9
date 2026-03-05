@@ -161,7 +161,7 @@ namespace CORE_BE.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
@@ -174,25 +174,21 @@ namespace CORE_BE.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("DiaChi")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DienThoai")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<string>("KhuVuc")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Level")
                         .HasColumnType("int");
 
                     b.Property<string>("LogoUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaDonVi")
@@ -201,26 +197,21 @@ namespace CORE_BE.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("MaNhaSanXuat")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("MaNoiSanXuat")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("Parent_Id")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("QuocGia")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SoFax")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenDayDu")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TenDonVi")
@@ -239,9 +230,132 @@ namespace CORE_BE.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
                     b.ToTable("DonVi");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.IdracLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExternalLogId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LogMessage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ServerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServerId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Serverity")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.HasIndex("ServerId1");
+
+                    b.ToTable("IdracLog");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.InfoServer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("BiosVersion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CpuModel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HostName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Manufacturer")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("MemorySize")
+                        .HasColumnType("real");
+
+                    b.Property<string>("OperatingSystem")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ServerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ServiceTag")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SystemMode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("InfoServer");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.Menu", b =>
@@ -250,7 +364,7 @@ namespace CORE_BE.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
@@ -294,8 +408,6 @@ namespace CORE_BE.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedBy");
-
                     b.ToTable("Menus");
                 });
 
@@ -313,7 +425,7 @@ namespace CORE_BE.Migrations
                     b.Property<bool>("Cof")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("CreatedBy")
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
@@ -348,8 +460,6 @@ namespace CORE_BE.Migrations
 
                     b.HasKey("Menu_Id", "Role_Id");
 
-                    b.HasIndex("CreatedBy");
-
                     b.HasIndex("Role_Id");
 
                     b.ToTable("Menu_Roles");
@@ -371,6 +481,175 @@ namespace CORE_BE.Migrations
                     b.HasIndex("DonVi_Id");
 
                     b.ToTable("PhanQuyen_DonVis");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.Server", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DiaChiIP")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("DonVi_Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IDRACVersion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MaServer")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TenServer")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonVi_Id");
+
+                    b.ToTable("Server");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.StatusModule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModuleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ServerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ServerId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("ValueMonitor")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.HasIndex("ServerId1");
+
+                    b.ToTable("StatusModule");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.StatusModuleHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ModuleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ServerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("ValueMonitor")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServerId");
+
+                    b.ToTable("statusModuleHistory");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -474,36 +753,34 @@ namespace CORE_BE.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("CORE_BE.Models.DonVi", b =>
+            modelBuilder.Entity("CORE_BE.Models.IdracLog", b =>
                 {
-                    b.HasOne("CORE_BE.Data.ApplicationUser", "NguoiTao")
+                    b.HasOne("CORE_BE.Models.Server", "Server")
                         .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("NguoiTao");
+                    b.HasOne("CORE_BE.Models.Server", null)
+                        .WithMany("IdracLog")
+                        .HasForeignKey("ServerId1");
+
+                    b.Navigation("Server");
                 });
 
-            modelBuilder.Entity("CORE_BE.Models.Menu", b =>
+            modelBuilder.Entity("CORE_BE.Models.InfoServer", b =>
                 {
-                    b.HasOne("CORE_BE.Data.ApplicationUser", "NguoiTao")
+                    b.HasOne("CORE_BE.Models.Server", "Server")
                         .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("NguoiTao");
+                    b.Navigation("Server");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.Menu_Role", b =>
                 {
-                    b.HasOne("CORE_BE.Data.ApplicationUser", "NguoiTao")
-                        .WithMany()
-                        .HasForeignKey("CreatedBy")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CORE_BE.Models.Menu", "Menu")
                         .WithMany("Menu_Roles")
                         .HasForeignKey("Menu_Id")
@@ -517,8 +794,6 @@ namespace CORE_BE.Migrations
                         .IsRequired();
 
                     b.Navigation("Menu");
-
-                    b.Navigation("NguoiTao");
 
                     b.Navigation("Role");
                 });
@@ -542,6 +817,41 @@ namespace CORE_BE.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CORE_BE.Models.Server", b =>
+                {
+                    b.HasOne("CORE_BE.Models.DonVi", "DonVi")
+                        .WithMany("Servers")
+                        .HasForeignKey("DonVi_Id");
+
+                    b.Navigation("DonVi");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.StatusModule", b =>
+                {
+                    b.HasOne("CORE_BE.Models.Server", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("CORE_BE.Models.Server", null)
+                        .WithMany("StatusModule")
+                        .HasForeignKey("ServerId1");
+
+                    b.Navigation("Server");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.StatusModuleHistory", b =>
+                {
+                    b.HasOne("CORE_BE.Models.Server", "Server")
+                        .WithMany()
+                        .HasForeignKey("ServerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Server");
+                });
+
             modelBuilder.Entity("CORE_BE.Data.ApplicationRole", b =>
                 {
                     b.Navigation("Menu_Roles");
@@ -559,11 +869,20 @@ namespace CORE_BE.Migrations
             modelBuilder.Entity("CORE_BE.Models.DonVi", b =>
                 {
                     b.Navigation("PhanQuyen_DonVis");
+
+                    b.Navigation("Servers");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.Menu", b =>
                 {
                     b.Navigation("Menu_Roles");
+                });
+
+            modelBuilder.Entity("CORE_BE.Models.Server", b =>
+                {
+                    b.Navigation("IdracLog");
+
+                    b.Navigation("StatusModule");
                 });
 #pragma warning restore 612, 618
         }

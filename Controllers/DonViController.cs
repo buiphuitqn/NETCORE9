@@ -39,7 +39,7 @@ public class DonViController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult Get(int page = 1, int pageSize = 20, string keyword = null)
+    public ActionResult Get(int page = 1, int pageSize = 20, string keyword = null)
     {
         if (keyword == null)
         {
@@ -51,19 +51,24 @@ public class DonViController : ControllerBase
         }
         int totalPage = 0,
             totalRow = 0;
+        string[] includes = { "Servers", "Servers.StatusModule" };
+
+        // var data = _uow.GetRepository<DonVi>().GetAll(x => !x.IsDeleted, null, includes);
         var list = _uow.GetRepository<DonVi>()
             .GetAllPaging(
                 page,
                 pageSize,
-                out totalPage,
                 out totalRow,
+                out totalPage,
                 x =>
                     !x.IsDeleted
                     && (
                         x.MaDonVi.ToLower().Contains(keyword)
                         || x.TenDonVi.ToLower().Contains(keyword)
                         || x.KhuVuc.ToLower().Contains(keyword)
-                    )
+                    ),
+                x => x.OrderBy(d => d.MaDonVi),
+                includes
             )
             .Select(x => new
             {
@@ -72,11 +77,27 @@ public class DonViController : ControllerBase
                 x.TenDonVi,
                 x.DiaChi,
                 x.KhuVuc,
-            })
-            .Distinct()
-            .OrderBy(x => x.MaDonVi)
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize);
+                Lst_Servers = x.Servers != null && x.Servers.Count() > 0 ?
+                    x.Servers.Where(s => !s.IsDeleted).Select(
+                        s => new
+                        {
+                            s.Id,
+                            s.MaServer,
+                            s.TenServer,
+                            s.DiaChiIP,
+                            s.Username,
+                            s.IDRACVersion,
+                            s.IsActive,
+                            Lst_Status = s.StatusModule.Where(sm => !sm.IsDeleted).Select(
+                                    sm => new
+                                    {
+                                        sm.ModuleName,
+                                        sm.Status,
+                                    }
+                                )
+                        }
+                    ) : []
+            });
         return Ok(
             new
             {
@@ -86,7 +107,6 @@ public class DonViController : ControllerBase
             }
         );
     }
-
     [HttpPost]
     public IActionResult Post(DonVi model)
     {

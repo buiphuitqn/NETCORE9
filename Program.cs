@@ -74,6 +74,22 @@ builder
     .AddEntityFrameworkStores<MyDbContext>()
     .AddSignInManager();
 
+builder.Services.AddHostedService<IdracWorker>();
+
+builder
+    .Services.AddHttpClient("idrac")
+    .ConfigureHttpClient(client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(60); // tăng lên 60s
+    })
+    .ConfigurePrimaryHttpMessageHandler(() =>
+        new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+        }
+    );
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Events.OnRedirectToLogin = context =>
@@ -145,6 +161,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Backend API v1");
+        c.RoutePrefix = string.Empty; // Đặt Swagger UI tại root (http://localhost:port/)
     });
 }
 app.UseCors("CorsApi");

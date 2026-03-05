@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\15. Source\\NETCORE9\\CORE_BE\\CORE_BE.csproj": {}
+    "D:\\15. Source\\SYSTEM MONITOR\\CORE_BE\\CORE_BE.csproj": {}
   },
   "projects": {
-    "D:\\15. Source\\NETCORE9\\CORE_BE\\CORE_BE.csproj": {
+    "D:\\15. Source\\SYSTEM MONITOR\\CORE_BE\\CORE_BE.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\15. Source\\NETCORE9\\CORE_BE\\CORE_BE.csproj",
+        "projectUniqueName": "D:\\15. Source\\SYSTEM MONITOR\\CORE_BE\\CORE_BE.csproj",
         "projectName": "CORE_BE",
-        "projectPath": "D:\\15. Source\\NETCORE9\\CORE_BE\\CORE_BE.csproj",
+        "projectPath": "D:\\15. Source\\SYSTEM MONITOR\\CORE_BE\\CORE_BE.csproj",
         "packagesPath": "C:\\Users\\buiph\\.nuget\\packages\\",
-        "outputPath": "D:\\15. Source\\NETCORE9\\CORE_BE\\obj\\",
+        "outputPath": "D:\\15. Source\\SYSTEM MONITOR\\CORE_BE\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

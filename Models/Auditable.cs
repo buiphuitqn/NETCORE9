@@ -9,8 +9,7 @@ namespace CORE_BE.Models
         public DateTime CreatedDate { get; set; }
 
         [ForeignKey("NguoiTao")]
-        public Guid CreatedBy { get; set; }
-        public ApplicationUser? NguoiTao { get; set; }
+        public Guid? CreatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
         public Guid? UpdatedBy { get; set; }
         public bool IsDeleted { get; set; }

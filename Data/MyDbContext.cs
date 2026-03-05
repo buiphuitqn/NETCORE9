@@ -73,6 +73,32 @@ namespace CORE_BE.Data
                 .WithMany(x => x.PhanQuyen_DonVis)
                 .HasForeignKey(x => x.DonVi_Id)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder
+                .Entity<IdracLog>()
+                .HasOne(x => x.Server)
+                .WithMany()
+                .HasForeignKey(x => x.ServerId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder
+                .Entity<InfoServer>()
+                .HasOne(x => x.Server)
+                .WithMany()
+                .HasForeignKey(x => x.ServerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StatusModuleHistory>()
+                .HasOne(x => x.Server)
+                .WithMany()
+                .HasForeignKey(x => x.ServerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder
+                .Entity<StatusModule>()
+                .HasOne(x => x.Server)
+                .WithMany()
+                .HasForeignKey(x => x.ServerId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         // Define DbSets for your entities here
@@ -80,5 +106,10 @@ namespace CORE_BE.Data
         public DbSet<PhanQuyen_DonVi> PhanQuyen_DonVis { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Menu_Role> Menu_Roles { get; set; }
+        public DbSet<Server> Server { get; set; }
+        public DbSet<IdracLog> IdracLog { get; set; }
+        public DbSet<InfoServer> InfoServer { get; set; }
+        public DbSet<StatusModule> StatusModule { get; set; }
+        public DbSet<StatusModuleHistory> statusModuleHistory { get; set; }
     }
 }

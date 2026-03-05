@@ -50,12 +50,13 @@ public class AuthController : ControllerBase
             user = await _userManager.FindByNameAsync(request.Username);
         }
         if (user == null)
-            return BadRequest(new { message = "Tài Khoản không tồn tại" });
+            // return BadRequest(new { message = "Tài Khoản không tồn tại" });
+            return StatusCode(StatusCodes.Status204NoContent, "Tài khoản không tồn tại");
         else
         {
             if (!user.IsActive)
             {
-                return BadRequest("Tài khoản đã bị khóa");
+                return StatusCode(StatusCodes.Status204NoContent, "Tài khoản đã bị khóa");
             }
             else
             {

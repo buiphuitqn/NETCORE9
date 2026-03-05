@@ -1,0 +1,8 @@
+{
+    "editor.defaultFormatter": null,
+    "[csharp]": {
+        "editor.defaultFormatter": "ms-dotnettools.csharp"
+    },
+    "screencastMode.keyboardShortcutsFormat": "commandAndKeys",
+    "screencastMode.onlyKeyboardShortcuts": false
+}
