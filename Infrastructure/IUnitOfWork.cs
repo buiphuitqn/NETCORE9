@@ -7,5 +7,6 @@ namespace CORE_BE.Infrastructure
         IRepository<T> GetRepository<T>()
             where T : class;
         int Complete();
+        Task<int> CompleteAsync();
     }
 }

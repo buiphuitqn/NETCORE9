@@ -19,6 +19,7 @@ namespace CORE_BE.Models
         public string Email { get; set; }
         public string FullName { get; set; }
         public bool MustChangePass { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 
     public class InfoLogin
@@ -27,8 +28,10 @@ namespace CORE_BE.Models
         public string FullName { get; set; }
         public string Email { get; set; }
         public string Token { get; set; }
+        public string RefreshToken { get; set; }
         public DateTime? Expires { get; set; }
         public bool MustChangePass { get; set; }
+        public string? AvatarUrl { get; set; }
     }
 
     public class RegisterModel
@@ -101,8 +104,8 @@ namespace CORE_BE.Models
             get { return _GhiChu; }
             set { _GhiChu = value?.Trim(); }
         }
-        public string UserCode { get; set; }
-        public List<Guid> ListDonVi { get; set; }
+        public string? UserCode { get; set; }
+        public List<Guid>? ListDonVi { get; set; }
     }
 
     public class ChangePasswordModel
@@ -168,5 +171,48 @@ namespace CORE_BE.Models
         public string Icon { get; set; }
         public List<MenuView> children { set; get; }
         public Permission permission { set; get; }
+    }
+
+    public class RoleModel
+    {
+        public string? Id { get; set; }
+        [Required]
+        public string Name { get; set; }
+        public string? Description { get; set; }
+    }
+
+    public class SeedAdminModel
+    {
+        [Required]
+        public string UserName { get; set; }
+    }
+
+    public class SaveMenuPermissionsModel
+    {
+        public Guid RoleId { get; set; }
+        public List<MenuPermissionItem> Permissions { get; set; }
+    }
+
+    public class MenuPermissionItem
+    {
+        public Guid MenuId { get; set; }
+        public bool View { get; set; }
+        public bool Add { get; set; }
+        public bool Edit { get; set; }
+        public bool Del { get; set; }
+        public bool Cof { get; set; }
+        public bool Print { get; set; }
+    }
+
+    public class SaveDonViPermissionsModel
+    {
+        public Guid UserId { get; set; }
+        public List<Guid>? DonViIds { get; set; }
+    }
+
+    public class TokenApiModel
+    {
+        public string? AccessToken { get; set; }
+        public string? RefreshToken { get; set; }
     }
 }

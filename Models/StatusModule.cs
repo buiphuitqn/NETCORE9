@@ -15,9 +15,8 @@ namespace CORE_BE.Models
         public string ModuleName { get; set; }
         public float? ValueMonitor { get; set; }
         public string Status { get; set; }
-
-        [JsonIgnore]
+        
         [ForeignKey("ServerId")]
-        public Server Server { get; set; }
+        public Server? Server { get; set; }
     }
 }

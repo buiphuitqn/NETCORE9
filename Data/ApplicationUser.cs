@@ -13,6 +13,9 @@ public class ApplicationUser : IdentityUser<Guid>
     public DateTime? CreatedDate { get; set; }
     public DateTime? UpdatedDate { get; set; }
     public DateTime? DeletedDate { get; set; }
+    public string? AvatarUrl { get; set; }
+    public string? RefreshToken { get; set; }
+    public DateTime? RefreshTokenExpiryTime { get; set; }
 
     public ICollection<ApplicationUserRole>? UserRoles { get; set; }
     public ICollection<PhanQuyen_DonVi>? PhanQuyen_DonVis { get; set; }

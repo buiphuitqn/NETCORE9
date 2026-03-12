@@ -41,7 +41,7 @@ namespace CORE_BE.Data
                     x.Name,
                 });
 
-            modelBuilder.Entity<ApplicationUserRole>().HasKey(x => new { x.User_Id, x.Role_Id });
+            modelBuilder.Entity<ApplicationUserRole>().HasKey(x => new { x.UserId, x.RoleId});
             modelBuilder.Entity<Menu_Role>().HasKey(x => new { x.Menu_Id, x.Role_Id });
 
             modelBuilder
@@ -92,13 +92,6 @@ namespace CORE_BE.Data
                 .WithMany()
                 .HasForeignKey(x => x.ServerId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder
-                .Entity<StatusModule>()
-                .HasOne(x => x.Server)
-                .WithMany()
-                .HasForeignKey(x => x.ServerId)
-                .OnDelete(DeleteBehavior.Restrict);
         }
 
         // Define DbSets for your entities here
@@ -106,10 +99,10 @@ namespace CORE_BE.Data
         public DbSet<PhanQuyen_DonVi> PhanQuyen_DonVis { get; set; }
         public DbSet<Menu> Menus { get; set; }
         public DbSet<Menu_Role> Menu_Roles { get; set; }
-        public DbSet<Server> Server { get; set; }
-        public DbSet<IdracLog> IdracLog { get; set; }
-        public DbSet<InfoServer> InfoServer { get; set; }
-        public DbSet<StatusModule> StatusModule { get; set; }
-        public DbSet<StatusModuleHistory> statusModuleHistory { get; set; }
+        public DbSet<Server> Servers { get; set; }
+        public DbSet<IdracLog> IdracLogs { get; set; }
+        public DbSet<InfoServer> InfoServers { get; set; }
+        public DbSet<StatusModule> StatusModules { get; set; }
+        public DbSet<StatusModuleHistory> StatusModuleHistories { get; set; }
     }
 }

@@ -1,16 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using CORE_BE;
-using CORE_BE.Data;
 using CORE_BE.Infrastructure;
 using CORE_BE.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CORE_BE.Controllers;
 
@@ -18,32 +10,45 @@ namespace CORE_BE.Controllers;
 [EnableCors("CorsApi")]
 [Route("api/[controller]")]
 [ApiController]
-
 public class IdracLogController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly IConfiguration _config;
     private readonly IUnitOfWork _uow;
+    private readonly ILogger<IdracLogController> _logger;
 
-    public IdracLogController(
-        UserManager<ApplicationUser> userMgr,
-        RoleManager<ApplicationRole> roleMgr,
-        IConfiguration config,
-        IUnitOfWork uow
-    )
+    public IdracLogController(IUnitOfWork uow, ILogger<IdracLogController> logger)
     {
-        _userManager = userMgr;
-        _roleManager = roleMgr;
-        _config = config;
         _uow = uow;
+        _logger = logger;
     }
 
-    [HttpGet("GetbyServerId")]
-    public IActionResult GetbyServerId(Guid serverId)
+    [HttpGet("GetByServerId")]
+    public IActionResult GetByServerId(Guid serverId)
     {
         var list = _uow.GetRepository<IdracLog>()
-            .GetAll(x => x.ServerId == serverId && !x.IsDeleted, null, null);
+            .GetAll(x => x.ServerId == serverId && !x.IsDeleted, x => x.OrderByDescending(d => d.Timestamp), null);
         return Ok(list);
     }
-}   
+
+    [HttpGet("GetNotOk")]
+    public IActionResult GetNotOk(int pageSize = 200)
+    {
+        string[] includes = { "Server" };
+        var list = _uow.GetRepository<IdracLog>()
+            .GetAll(
+                x => !x.IsDeleted && x.Serverity != null && x.Serverity.ToLower() != "ok",
+                x => x.OrderByDescending(d => d.Timestamp),
+                includes
+            )
+            .Take(pageSize)
+            .Select(x => new
+            {
+                x.Id,
+                x.Serverity,
+                x.LogMessage,
+                x.Timestamp,
+                TenServer = x.Server != null ? x.Server.TenServer : ""
+            })
+            .ToList();
+        return Ok(list);
+    }
+}

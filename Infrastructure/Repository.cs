@@ -39,9 +39,15 @@ namespace CORE_BE.Infrastructure
             _dbSet.UpdateRange(entities);
         }
 
-        public void Delete(object id)
+        // public void Delete(object id)
+        // {
+        //     var entity = _dbSet.Find(id);
+        //     if (entity != null)
+        //         _dbSet.Remove(entity);
+        // }
+        public void Delete(params object[] ids)
         {
-            var entity = _dbSet.Find(id);
+            var entity = _dbSet.Find(ids);
             if (entity != null)
                 _dbSet.Remove(entity);
         }
@@ -110,20 +116,22 @@ namespace CORE_BE.Infrastructure
         {
             IQueryable<T> query = _dbSet;
 
-            if (whereCondition != null)
-                query = query.Where(whereCondition);
-
-
-            if (orderBy != null)
-                query = orderBy(query);
-            totalRow = query.Count();
-            totalPage = (int)Math.Ceiling((double)totalRow / pageSize);
-            
-            query = query.Skip((page - 1) * pageSize).Take(pageSize);
-            if(includes != null && includes.Length > 0)
+            // Include BEFORE filtering and paging for correct query generation
+            if (includes != null && includes.Length > 0)
             {
                 query = includes.Aggregate(query, (current, include) => current.Include(include));
             }
+
+            if (whereCondition != null)
+                query = query.Where(whereCondition);
+
+            if (orderBy != null)
+                query = orderBy(query);
+
+            totalRow = query.Count();
+            totalPage = (int)Math.Ceiling((double)totalRow / pageSize);
+
+            query = query.Skip((page - 1) * pageSize).Take(pageSize);
             return query.AsNoTracking().ToList();
         }
 

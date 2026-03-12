@@ -1,104 +1,77 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.DirectoryServices;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Exchange.WebServices.Data;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using System.Net;
 
 namespace CORE_BE
 {
     public class Commons
     {
-        public static bool LoginLDAP(string userName, string password, string domainName)
+        /// <summary>
+        /// Escape special characters for LDAP filter to prevent LDAP injection
+        /// </summary>
+        private static string EscapeLdapFilter(string input)
         {
-            string domainAndUsername = "";
-            DirectoryEntry entry;
-            if (
-                domainName == "thaco.com.vn"
-                || domainName == "thagrico.vn"
-                || domainName == "thiso.vn"
-                || domainName == "thilogi.com.vn"
-                || domainName == "thadico.vn"
-            )
+            if (string.IsNullOrEmpty(input)) return input;
+            return input
+                .Replace("\\", "\\5c")
+                .Replace("*", "\\2a")
+                .Replace("(", "\\28")
+                .Replace(")", "\\29")
+                .Replace("\0", "\\00");
+        }
+
+        public static bool LoginLDAP(string userName, string password, string domainName, IConfiguration config)
+        {
+            var ldapSettings = config.GetSection("LdapSettings");
+            var thacoDomains = ldapSettings.GetSection("ThacoDomains").Get<string[]>() ?? [];
+            var primaryServers = ldapSettings.GetSection("PrimaryServers").Get<string[]>() ?? [];
+            var secondaryServers = ldapSettings.GetSection("SecondaryServers").Get<string[]>() ?? [];
+
+            string domainAndUsername;
+            string[] ldapServers;
+
+            if (thacoDomains.Contains(domainName, StringComparer.OrdinalIgnoreCase))
             {
                 domainAndUsername = userName + "@thaco.com.vn";
-                try
-                {
-                    entry = new DirectoryEntry("LDAP://10.10.2.73", domainAndUsername, password);
-                }
-                catch (System.Exception)
-                {
-                    try
-                    {
-                        entry = new DirectoryEntry(
-                            "LDAP://10.10.2.10",
-                            domainAndUsername,
-                            password
-                        );
-                    }
-                    catch (System.Exception)
-                    {
-                        try { }
-                        catch (System.Exception)
-                        {
-                            entry = new DirectoryEntry(
-                                "LDAP://10.10.2.9",
-                                domainAndUsername,
-                                password
-                            );
-                            throw;
-                        }
-                        throw;
-                    }
-                    throw;
-                }
-                // entry = new DirectoryEntry("LDAP://thaco.com.vn", domainAndUsername, password);
+                ldapServers = primaryServers;
             }
             else
             {
                 domainAndUsername = userName + "@thacomazda.vn";
+                ldapServers = secondaryServers;
+            }
+
+            // Try each LDAP server in order until one succeeds
+            DirectoryEntry entry = null;
+            foreach (var server in ldapServers)
+            {
                 try
                 {
-                    entry = new DirectoryEntry("LDAP://10.40.12.2", domainAndUsername, password);
+                    entry = new DirectoryEntry($"LDAP://{server}", domainAndUsername, password);
+                    // Force authentication by accessing NativeObject
+                    _ = entry.NativeObject;
+                    break; // Connection succeeded
                 }
-                catch (System.Exception)
+                catch
                 {
-                    entry = new DirectoryEntry("LDAP://10.10.2.54", domainAndUsername, password);
-                    throw;
+                    entry = null;
+                    continue; // Try next server
                 }
-                // entry = new DirectoryEntry("LDAP://vinamazda.vn", domainAndUsername, password);
             }
+
+            if (entry == null)
+                return false;
+
             try
             {
-                // Bind to the native AdsObject to force authentication.
-                Object obj = entry.NativeObject;
-                DirectorySearcher search = new DirectorySearcher(entry);
-                search.Filter = "(SAMAccountName=" + userName + ")";
+                var search = new DirectorySearcher(entry);
+                var safeUserName = EscapeLdapFilter(userName);
+                search.Filter = $"(SAMAccountName={safeUserName})";
                 search.PropertiesToLoad.Add("cn");
                 SearchResult result = search.FindOne();
-                if (null == result)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
+                return result != null;
             }
-            catch (System.Exception)
+            catch
             {
                 return false;
             }
@@ -115,10 +88,7 @@ namespace CORE_BE
                     WellKnownFolderName.Root,
                     new FolderView(1)
                 );
-                if (findFolderResults != null)
-                    return true;
-                else
-                    return false;
+                return findFolderResults != null;
             }
             catch
             {

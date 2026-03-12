@@ -26,6 +26,6 @@ namespace CORE_BE.Models
         public string Icon { get; set; }
 
         [JsonIgnore]
-        public virtual ICollection<Menu_Role> Menu_Roles { get; set; }
+        public virtual ICollection<Menu_Role>? Menu_Roles { get; set; }
     }
 }

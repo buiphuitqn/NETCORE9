@@ -30,8 +30,7 @@ namespace CORE_BE.Models
         [ForeignKey("DonVi_Id")]
         public DonVi? DonVi { get; set; }
         [JsonIgnore]
-        public ICollection<StatusModule>? StatusModule { get; set; }
-
+        public List<StatusModule>? StatusModules { get; set; }
         [JsonIgnore]
         public ICollection<IdracLog>? IdracLog { get; set; }
     }

@@ -66,6 +66,9 @@ namespace CORE_BE.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("AvatarUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -117,6 +120,12 @@ namespace CORE_BE.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("RefreshTokenExpiryTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -136,21 +145,15 @@ namespace CORE_BE.Migrations
 
             modelBuilder.Entity("CORE_BE.Data.ApplicationUserRole", b =>
                 {
-                    b.Property<Guid>("User_Id")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("Role_Id")
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.HasKey("UserId", "RoleId");
 
-                    b.HasKey("User_Id", "Role_Id");
-
-                    b.HasIndex("Role_Id");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("UserRoles");
                 });
@@ -287,7 +290,7 @@ namespace CORE_BE.Migrations
 
                     b.HasIndex("ServerId1");
 
-                    b.ToTable("IdracLog");
+                    b.ToTable("IdracLogs");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.InfoServer", b =>
@@ -355,7 +358,7 @@ namespace CORE_BE.Migrations
 
                     b.HasIndex("ServerId");
 
-                    b.ToTable("InfoServer");
+                    b.ToTable("InfoServers");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.Menu", b =>
@@ -545,7 +548,7 @@ namespace CORE_BE.Migrations
 
                     b.HasIndex("DonVi_Id");
 
-                    b.ToTable("Server");
+                    b.ToTable("Servers");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.StatusModule", b =>
@@ -576,9 +579,6 @@ namespace CORE_BE.Migrations
                     b.Property<Guid>("ServerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ServerId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -596,9 +596,7 @@ namespace CORE_BE.Migrations
 
                     b.HasIndex("ServerId");
 
-                    b.HasIndex("ServerId1");
-
-                    b.ToTable("StatusModule");
+                    b.ToTable("StatusModules");
                 });
 
             modelBuilder.Entity("CORE_BE.Models.StatusModuleHistory", b =>
@@ -649,7 +647,7 @@ namespace CORE_BE.Migrations
 
                     b.HasIndex("ServerId");
 
-                    b.ToTable("statusModuleHistory");
+                    b.ToTable("StatusModuleHistories");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -738,13 +736,13 @@ namespace CORE_BE.Migrations
                 {
                     b.HasOne("CORE_BE.Data.ApplicationRole", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("Role_Id")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("CORE_BE.Data.ApplicationUser", "User")
                         .WithMany("UserRoles")
-                        .HasForeignKey("User_Id")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -829,14 +827,10 @@ namespace CORE_BE.Migrations
             modelBuilder.Entity("CORE_BE.Models.StatusModule", b =>
                 {
                     b.HasOne("CORE_BE.Models.Server", "Server")
-                        .WithMany()
+                        .WithMany("StatusModules")
                         .HasForeignKey("ServerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("CORE_BE.Models.Server", null)
-                        .WithMany("StatusModule")
-                        .HasForeignKey("ServerId1");
 
                     b.Navigation("Server");
                 });
@@ -882,7 +876,7 @@ namespace CORE_BE.Migrations
                 {
                     b.Navigation("IdracLog");
 
-                    b.Navigation("StatusModule");
+                    b.Navigation("StatusModules");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,12 +1,12 @@
 using System.Text;
 using CORE_BE.Data;
 using CORE_BE.Infrastructure;
+using CORE_BE.Middleware;
 using CORE_BE.Models;
+using CORE_BE.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -47,34 +47,63 @@ builder
                 Console.WriteLine("❌ Auth failed: " + ctx.Exception.Message);
                 return Task.CompletedTask;
             },
-            OnTokenValidated = ctx =>
+            OnTokenValidated = async ctx =>
             {
                 Console.WriteLine("✅ Token valid");
-                return Task.CompletedTask;
+                var userManager = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var userId = ctx.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var user = await userManager.FindByIdAsync(userId);
+                    if (user == null || user.IsDeleted || !user.IsActive)
+                    {
+                        ctx.Fail("Tài khoản đã bị khóa hoặc bị xóa.");
+                    }
+                }
             },
         };
     });
+var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? ["*"];
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         "CorsApi",
         policy =>
         {
-            policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            if (allowedOrigins.Contains("*"))
+            {
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            }
+            else
+            {
+                policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+            }
         }
     );
 });
 
-builder.Services.AddDbContext<MyDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
-builder
-    .Services.AddIdentityCore<ApplicationUser>()
-    .AddRoles<ApplicationRole>()
-    .AddEntityFrameworkStores<MyDbContext>()
-    .AddSignInManager();
+var mode = builder.Configuration["DistributedSettings:Mode"];
+
+if (mode == "Center")
+{
+    builder.Services.AddDbContext<MyDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    );
+    builder
+        .Services.AddIdentityCore<ApplicationUser>()
+        .AddRoles<ApplicationRole>()
+        .AddEntityFrameworkStores<MyDbContext>()
+        .AddSignInManager();
+}
+else
+{
+    // Agent mode: Không cần DB và Identity
+    Console.WriteLine(">>> Chạy ở chế độ Agent: Bỏ qua kết nối SQL Server nội bộ.");
+}
 
 builder.Services.AddHostedService<IdracWorker>();
+builder.Services.AddHostedService<AgentWorker>();
+builder.Services.AddScoped<IIdracService, IdracService>();
 
 builder
     .Services.AddHttpClient("idrac")
@@ -85,8 +114,12 @@ builder
     .ConfigurePrimaryHttpMessageHandler(() =>
         new HttpClientHandler
         {
-            ServerCertificateCustomValidationCallback =
-                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
+            // Ép cho phép sử dụng các chuẩn bảo mật cũ (iDRAC đời cũ thường dùng TLS cũ)
+            SslProtocols = System.Security.Authentication.SslProtocols.Tls12 
+                           | System.Security.Authentication.SslProtocols.Tls13 
+                           | System.Security.Authentication.SslProtocols.Tls11 
+                           | System.Security.Authentication.SslProtocols.Tls
         }
     );
 
@@ -154,16 +187,22 @@ builder.Services.AddSwaggerGen(options =>
 });
 var app = builder.Build();
 
+// Global exception handler — must be first in pipeline
+app.UseMiddleware<ExceptionHandlerMiddleware>();
+
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Backend API v1");
-        c.RoutePrefix = string.Empty; // Đặt Swagger UI tại root (http://localhost:port/)
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product Backend API v1");
+    c.RoutePrefix = string.Empty; // Đặt Swagger UI tại root (http://localhost:port/)
+});
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+    RequestPath = "/uploads"
+});
 app.UseCors("CorsApi");
 app.UseAuthentication();
 app.UseAuthorization();

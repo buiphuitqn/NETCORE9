@@ -1,16 +1,8 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using CORE_BE;
-using CORE_BE.Data;
 using CORE_BE.Infrastructure;
 using CORE_BE.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace CORE_BE.Controllers;
 
@@ -18,25 +10,15 @@ namespace CORE_BE.Controllers;
 [EnableCors("CorsApi")]
 [Route("api/[controller]")]
 [ApiController]
-
 public class InfoServerController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly IConfiguration _config;
     private readonly IUnitOfWork _uow;
+    private readonly ILogger<InfoServerController> _logger;
 
-    public InfoServerController(
-        UserManager<ApplicationUser> userMgr,
-        RoleManager<ApplicationRole> roleMgr,
-        IConfiguration config,
-        IUnitOfWork uow
-    )
+    public InfoServerController(IUnitOfWork uow, ILogger<InfoServerController> logger)
     {
-        _userManager = userMgr;
-        _roleManager = roleMgr;
-        _config = config;
         _uow = uow;
+        _logger = logger;
     }
 
     [HttpGet("GetInfoByServerId")]

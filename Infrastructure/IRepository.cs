@@ -14,7 +14,7 @@ namespace CORE_BE.Infrastructure
         void Update(T entity);
         void UpdateRange(IEnumerable<T> entities);
 
-        void Delete(object id);
+        void Delete(params object[] id);
         void DeleteRange(List<object> lst);
         void RemoveRange(IEnumerable<T> entities);
 

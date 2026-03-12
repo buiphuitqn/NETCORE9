@@ -1,16 +1,10 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using CORE_BE;
-using CORE_BE.Data;
 using CORE_BE.Infrastructure;
 using CORE_BE.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using CORE_BE.Filters;
 
 namespace CORE_BE.Controllers;
 
@@ -20,25 +14,17 @@ namespace CORE_BE.Controllers;
 [ApiController]
 public class ServerController : ControllerBase
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<ApplicationRole> _roleManager;
-    private readonly IConfiguration _config;
     private readonly IUnitOfWork _uow;
+    private readonly ILogger<ServerController> _logger;
 
-    public ServerController(
-        UserManager<ApplicationUser> userMgr,
-        RoleManager<ApplicationRole> roleMgr,
-        IConfiguration config,
-        IUnitOfWork uow
-    )
+    public ServerController(IUnitOfWork uow, ILogger<ServerController> logger)
     {
-        _userManager = userMgr;
-        _roleManager = roleMgr;
-        _config = config;
         _uow = uow;
+        _logger = logger;
     }
 
     [HttpGet]
+    [Permission("he-thong/may-chu", "view")]
     public IActionResult Get(int page = 1, int pageSize = 20, string keyword = null)
     {
         if (keyword == null)
@@ -51,6 +37,7 @@ public class ServerController : ControllerBase
         }
         int totalPage = 0,
             totalRow = 0;
+        string[] includes = { "StatusModules" };
         var list = _uow.GetRepository<Server>()
             .GetAllPaging(
                 page,
@@ -58,9 +45,29 @@ public class ServerController : ControllerBase
                 out totalPage,
                 out totalRow,
                 x =>
+                    !x.IsDeleted
+                    && (
                     x.TenServer.ToLower().Contains(keyword)
-                    || x.MaServer.ToLower().Contains(keyword)
-            );
+                    || x.MaServer.ToLower().Contains(keyword)),
+                x => x.OrderBy(d => d.MaServer),
+                includes
+            ).Select(x => new
+            {
+                x.Id,
+                x.MaServer,
+                x.TenServer,
+                x.DiaChiIP,
+                x.Username,
+                x.IDRACVersion,
+                x.IsActive,
+                Lst_Status = x.StatusModules.Where(sm => !sm.IsDeleted).Select(
+                    sm => new
+                    {
+                        sm.ModuleName,
+                        sm.Status,
+                    }
+                )
+            });
         return Ok(
             new
             {
@@ -71,7 +78,17 @@ public class ServerController : ControllerBase
         );
     }
 
+    [HttpGet("GetByDonviId")]
+    [Permission("he-thong/may-chu", "view")]
+    public IActionResult GetByDonviId(Guid DonViId)
+    {
+        var item = _uow.GetRepository<Server>()
+        .GetAll(x => x.DonVi_Id == DonViId && !x.IsDeleted, null, null);
+        return Ok(item);
+    }
+
     [HttpPost]
+    [Permission("he-thong/may-chu", "add")]
     public IActionResult Post(Server model)
     {
         if (!ModelState.IsValid)
@@ -82,10 +99,55 @@ public class ServerController : ControllerBase
         {
             return BadRequest("Mã server đã tồn tại");
         }
-        model.CreatedDate = DateTime.Now;
+        model.CreatedDate = DateTime.UtcNow;
         model.CreatedBy = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
         _uow.GetRepository<Server>().Add(model);
         _uow.Complete();
         return StatusCode(StatusCodes.Status201Created);
+    }
+
+    [HttpPut]
+    [Permission("he-thong/may-chu", "edit")]
+    public IActionResult Put(Server model)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var existing = _uow.GetRepository<Server>().GetById(model.Id);
+        if (existing == null || existing.IsDeleted)
+            return NotFound(new { message = "Không tìm thấy máy chủ" });
+
+        if (_uow.GetRepository<Server>()
+                .Exists(x => x.MaServer == model.MaServer && x.Id != model.Id && !x.IsDeleted))
+        {
+            return StatusCode(StatusCodes.Status409Conflict, "Mã server đã tồn tại");
+        }
+
+        existing.MaServer = model.MaServer;
+        existing.TenServer = model.TenServer;
+        existing.DiaChiIP = model.DiaChiIP;
+        existing.Username = model.Username;
+        existing.Password = model.Password;
+        existing.IDRACVersion = model.IDRACVersion;
+        existing.IsActive = model.IsActive;
+        existing.DonVi_Id = model.DonVi_Id;
+        existing.UpdatedDate = DateTime.UtcNow;
+        existing.UpdatedBy = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+        _uow.Complete();
+        return Ok(new { message = "Cập nhật máy chủ thành công" });
+    }
+
+    [HttpDelete]
+    [Permission("he-thong/may-chu", "del")]
+    public IActionResult Delete(Guid id)
+    {
+        var item = _uow.GetRepository<Server>().GetById(id);
+        if (item == null)
+            return NotFound();
+        item.IsDeleted = true;
+        item.DeletedDate = DateTime.UtcNow;
+        _uow.Complete();
+        return StatusCode(StatusCodes.Status204NoContent);
     }
 }
